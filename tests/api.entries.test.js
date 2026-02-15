@@ -63,11 +63,11 @@ describe('Entries REST api', function ( ) {
   });
 
   afterEach(function (done) {
-    self.archive( ).remove({ }, done);
+    self.archive( ).deleteMany({ }).then(function() { done(); }).catch(done);
   });
 
   after(function (done) {
-    self.archive( ).remove({ }, done);
+    self.archive( ).deleteMany({ }).then(function() { done(); }).catch(done);
   });
 
   // keep this test pinned at or near the top in order to validate all

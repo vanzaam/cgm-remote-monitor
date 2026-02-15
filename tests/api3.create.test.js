@@ -444,6 +444,7 @@ describe('API3 CREATE', function() {
 
     const oldBody = await self.get(doc._id);
     delete doc._id; // APIv1 updates input document, we must get rid of _id for the next round
+    delete doc.mills; // mills is a runtime-only field added by processRawDataForRuntime, not stored in DB
     oldBody.should.containEql(doc);
 
     const doc2 = Object.assign({}, doc, {

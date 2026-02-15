@@ -1,8 +1,9 @@
 const path = require('path');
 const webpack = require('webpack');
 const pluginArray = [];
-const sourceMapType = 'source-map';
+const sourceMapType = process.env.NODE_ENV === 'development' ? 'source-map' : 'hidden-source-map';
 const MomentTimezoneDataPlugin = require('moment-timezone-data-webpack-plugin');
+const MomentLocalesPlugin = require('moment-locales-webpack-plugin');
 const projectRoot = path.resolve(__dirname, '..');
 
 /*
@@ -54,6 +55,7 @@ pluginArray.push(new webpack.ProvidePlugin({
 
 pluginArray.push(new webpack.ProvidePlugin({
   process: 'process/browser',
+  Buffer: ['buffer', 'Buffer'],
 }));
 
 // limit Timezone data from Moment
@@ -62,6 +64,8 @@ pluginArray.push(new MomentTimezoneDataPlugin({
   startYear: 2015,
   endYear: 2035,
 }));
+
+pluginArray.push(new MomentLocalesPlugin());
 
 if (process.env.NODE_ENV === 'development') {
   const ESLintPlugin = require('eslint-webpack-plugin');

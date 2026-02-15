@@ -204,6 +204,7 @@ describe('API3 READ', function () {
 
     const identifier = doc._id.toString();
     delete doc._id;
+    delete doc.mills; // mills is a runtime-only field added by processRawDataForRuntime, not stored in DB
 
     let res = await self.instance.get(`${self.url}/${identifier}`, self.jwt.read)
       .expect(200);

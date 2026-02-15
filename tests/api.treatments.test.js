@@ -35,7 +35,7 @@ describe('Treatment API', function ( ) {
 
   it('post single treatments', function (done) {
 
-    self.ctx.treatments().remove({ }, function ( ) {
+    self.ctx.treatments().deleteMany({ }).then(function ( ) {
       var now = (new Date()).toISOString();
       request(self.app)
         .post('/api/treatments/')
@@ -67,7 +67,7 @@ describe('Treatment API', function ( ) {
   /*
   it('saving entry without created_at should fail', function (done) {
 
-    self.ctx.treatments().remove({ }, function ( ) {
+    self.ctx.treatments().deleteMany({ }).then(function ( ) {
       request(self.app)
         .post('/api/treatments/')
         .set('api-secret', self.env.api_secret || '')
@@ -89,7 +89,7 @@ describe('Treatment API', function ( ) {
     var current_time = Date.now();
     console.log('Testing date with local format: ', _moment(current_time).format("YYYY-MM-DDTHH:mm:ss.SSSZZ"));
       
-    self.ctx.treatments().remove({ }, function ( ) {
+    self.ctx.treatments().deleteMany({ }).then(function ( ) {
       request(self.app)
         .post('/api/treatments/')
         .set('api-secret', api_secret_hash || '')
@@ -122,7 +122,7 @@ describe('Treatment API', function ( ) {
 
 
   it('post a treatment array', function (done) {
-    self.ctx.treatments().remove({ }, function ( ) {
+    self.ctx.treatments().deleteMany({ }).then(function ( ) {
       var now = (new Date()).toISOString();
       request(self.app)
         .post('/api/treatments/')
@@ -149,7 +149,7 @@ describe('Treatment API', function ( ) {
   });
 
   it('post a treatment array and dedupe', function (done) {
-    self.ctx.treatments().remove({ }, function ( ) {
+    self.ctx.treatments().deleteMany({ }).then(function ( ) {
       var now = (new Date()).toISOString();
       request(self.app)
         .post('/api/treatments/')

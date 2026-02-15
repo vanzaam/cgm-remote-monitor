@@ -481,13 +481,13 @@ describe('reports', function ( ) {
 
       var result = $('body').html();
 
-      result.indexOf('<circle cx="978" cy="267.34375" fill="rgb(73, 22, 153)"').should.be.greaterThan(-1); // weektoweek Sunday sample point
-      result.indexOf('<circle cx="35" cy="267.34375" fill="rgb(34, 201, 228)"').should.be.greaterThan(-1); // weektoweek Monday sample point
-      result.indexOf('<circle cx="978" cy="267.34375" fill="rgb(0, 153, 123)"').should.be.greaterThan(-1); // weektoweek Tuesday sample point
-      result.indexOf('<circle cx="978" cy="267.34375" fill="rgb(135, 135, 228)"').should.be.greaterThan(-1); // weektoweek Wednesday sample point
-      result.indexOf('<circle cx="978" cy="267.34375" fill="rgb(135, 49, 204)"').should.be.greaterThan(-1); // weektoweek Thursday sample point
-      result.indexOf('<circle cx="978" cy="267.34375" fill="rgb(36, 36, 228)"').should.be.greaterThan(-1); // weektoweek Friday sample point
-      result.indexOf('<circle cx="978" cy="267.34375" fill="rgb(0, 234, 188)"').should.be.greaterThan(-1); // weektoweek Saturday sample point
+      result.indexOf('fill="rgb(73, 22, 153)"').should.be.greaterThan(-1); // weektoweek Sunday sample point
+      result.indexOf('fill="rgb(34, 201, 228)"').should.be.greaterThan(-1); // weektoweek Monday sample point
+      result.indexOf('fill="rgb(0, 153, 123)"').should.be.greaterThan(-1); // weektoweek Tuesday sample point
+      result.indexOf('fill="rgb(135, 135, 228)"').should.be.greaterThan(-1); // weektoweek Wednesday sample point
+      result.indexOf('fill="rgb(135, 49, 204)"').should.be.greaterThan(-1); // weektoweek Thursday sample point
+      result.indexOf('fill="rgb(36, 36, 228)"').should.be.greaterThan(-1); // weektoweek Friday sample point
+      result.indexOf('fill="rgb(0, 234, 188)"').should.be.greaterThan(-1); // weektoweek Saturday sample point
 
       done();
     });

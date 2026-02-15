@@ -2,7 +2,7 @@
 <html>
     <head>
       <meta name="viewport" content="width=device-width, maximum-scale=1, initial-scale=1, user-scalable=0" />
-      <meta name="apple-mobile-web-app-capable" content="yes">
+      <meta name="mobile-web-app-capable" content="yes">
       <title>Admin tools: Nightscout</title>
 
       <link rel="apple-touch-icon" sizes="57x57" href="/images/apple-touch-icon-57x57.png">
@@ -40,8 +40,8 @@
 
     <%- include('partials/authentication-status') %>
 
-    <script src="<%= locals.bundle %>/js/bundle.app.js"></script>
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="/admin/js/admin.js"></script>
+    <script defer src="<%= locals.bundle %>/js/bundle.app.js"></script>
+    <script defer src="/socket.io/socket.io.js"></script>
+    <script defer src="/admin/js/admin.js"></script>
   </body>
 </html>

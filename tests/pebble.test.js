@@ -100,6 +100,7 @@ describe('Pebble Endpoint', function ( ) {
     var self = this;
     bootevent(env, language).boot(function booted (context) {
       context.ddata = ctx.ddata.clone( );
+      self.ctx = context;
       self.app.use('/pebble', pebble(env, context));
       done();
     });
@@ -180,7 +181,7 @@ describe('Pebble Endpoint', function ( ) {
   });
 
   it('/pebble without battery', function (done) {
-    ctx.ddata.devicestatus = [];
+    this.ctx.ddata.devicestatus = [];
     request(this.app)
       .get('/pebble')
       .expect(200)
@@ -195,7 +196,7 @@ describe('Pebble Endpoint', function ( ) {
   });
 
   it('/pebble with a negative battery', function (done) {
-    ctx.ddata.devicestatus = [{uploader: {battery: -1}}];
+    this.ctx.ddata.devicestatus = [{uploader: {battery: -1}}];
     request(this.app)
       .get('/pebble')
       .expect(200)
@@ -210,7 +211,7 @@ describe('Pebble Endpoint', function ( ) {
   });
 
   it('/pebble with a false battery', function (done) {
-    ctx.ddata.devicestatus = [{uploader: {battery: false}}];
+    this.ctx.ddata.devicestatus = [{uploader: {battery: false}}];
     request(this.app)
       .get('/pebble')
       .expect(200)
@@ -238,13 +239,14 @@ describe('Pebble Endpoint with Raw and IOB and COB', function ( ) {
     var self = this;
     bootevent(env, language).boot(function booted (context) {
       context.ddata = ctx.ddata.clone( );
+      self.ctx = context;
       self.appRaw.use('/pebble', pebbleRaw(env, context));
       done();
     });
   });
 
   it('/pebble', function (done) {
-    ctx.ddata.devicestatus = [{uploader: {battery: 100}}];
+    this.ctx.ddata.devicestatus = [{uploader: {battery: 100}}];
     request(this.appRaw)
       .get('/pebble?count=2')
       .expect(200)
@@ -274,7 +276,8 @@ describe('Pebble Endpoint with Raw and IOB and COB', function ( ) {
   });
 
   it('/pebble with no treatments', function (done) {
-    ctx.ddata.treatments = [];
+    this.ctx.ddata.treatments = [];
+    this.ctx.ddata.devicestatus = [];
     request(this.appRaw)
       .get('/pebble')
       .expect(200)
@@ -289,8 +292,8 @@ describe('Pebble Endpoint with Raw and IOB and COB', function ( ) {
   });
 
   it('/pebble with IOB from devicestatus', function (done) {
-    ctx.ddata.treatments = [];
-    ctx.ddata.devicestatus = updateMills([{pump: {iob: {bolusiob: 2.3}}}]);
+    this.ctx.ddata.treatments = [];
+    this.ctx.ddata.devicestatus = updateMills([{pump: {iob: {bolusiob: 2.3}}}]);
     request(this.appRaw)
       .get('/pebble')
       .expect(200)
