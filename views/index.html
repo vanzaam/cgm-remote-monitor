@@ -3,7 +3,7 @@
 
 <head>
   <meta name="viewport" content="width=device-width, maximum-scale=1, initial-scale=0.9, user-scalable=0">
-  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <link rel="apple-touch-startup-image" href="images/launch.png">
   <meta name="apple-mobile-web-app-title" content="Nightscout">
 
@@ -28,6 +28,7 @@
   <meta name="msapplication-TileImage" content="/images/mstile-144x144.png">
   <meta name="msapplication-config" content="/browserconfig.xml">
   <meta name="theme-color" content="#333333">
+  <link rel="preload" href="<%= locals.bundle %>/js/bundle.app.js" as="script">
   <link rel="preload" href="css/ui-darkness/jquery-ui.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <link rel="preload" href="css/jquery.tooltips.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <link rel="preload" href="css/main.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -122,6 +123,11 @@
 
     <div id="notification" role="region" aria-label="Notification">
       <a href="#" aria-label="cancel"><span></span><i class="icon-cancel-circled"></i></a>
+    </div>
+    <div id="snoozeBar" style="display:none;">
+      <span id="snoozeBarText"></span>
+      <a href="#" id="snoozeBarCancel" class="snooze-action translate">Cancel</a>
+      <a href="#" id="snoozeBarExtend" class="snooze-action">+30m</a>
     </div>
     <div class="primary">
       <div class="bgStatus current">
@@ -264,6 +270,10 @@
             <span class="translate">mins</span>
           </dd>
           <dd><input type="checkbox" id="alarm-pumpbatterylow-browser"><label for="alarm-pumpbatterylow-browser" class="translate">Pump Battery Low Alarm</label></dd>
+        </dl>
+        <dl class="toggle">
+          <dt><span class="translate">Show Snooze Status</span> <a class="tip" original-title="When enabled a bar shows active alarm snooze with remaining time."><i class="icon-help-circled"></i></a></dt>
+          <dd><input type="checkbox" name="showsnoozebar-browser" id="showsnoozebar-browser" checked><label for="showsnoozebar-browser" class="translate">Enable</label></dd>
         </dl>
         <dl class="toggle">
           <dt><span class="translate">Night Mode</span> <a class="tip" original-title="When enabled the page will be dimmed from 10pm - 6am."><i class="icon-help-circled"></i></a></dt>
@@ -410,11 +420,11 @@
           <span class="translate">Insulin Given</span>
           <input type="number" step="any" min="0" id="insulinGiven" placeholder="Amount in units" class="titletranslate" pattern="[0-9.,]*">
         </label>
-        <label id="insulinSplitLabel" for="insulinSplit" class="left-column short-label">
+        <label id="insulinSplitLabel" for="insulinSplitNow" class="left-column short-label">
           <span class="translate">Split</span>
-          <input type="number" step="5" min="0" max="100" style="width:50px" id="insulinSplitNow" placeholder="% now" class="titletranslate" pattern="\d*">%
+          <input type="number" step="5" min="0" max="100" style="width:50px" id="insulinSplitNow" placeholder="% now" class="titletranslate" pattern="\d*" aria-label="Split percent now">%
           :
-          <input type="number" step="5" min="0" max="100" style="width:50px" id="insulinSplitExt" placeholder="% extended" class="titletranslate" pattern="\d*">%
+          <input type="number" step="5" min="0" max="100" style="width:50px" id="insulinSplitExt" placeholder="% extended" class="titletranslate" pattern="\d*" aria-label="Split percent extended">%
         </label>
         <label id="durationLabel" for="duration" class="left-column short-label">
           <span class="translate">Duration</span>
@@ -752,9 +762,9 @@
     <audio src="audio/alarm2.mp3" preload="auto" loop="true" class="urgent alarm2 mp3" type="audio/mp3"></audio>
   </div>
 
-  <script src="<%= locals.bundle %>/js/bundle.app.js"></script>
-  <script src="socket.io/socket.io.js"></script>
-  <script src="js/client.js"></script>
+  <script defer src="<%= locals.bundle %>/js/bundle.app.js"></script>
+  <script defer src="socket.io/socket.io.js"></script>
+  <script defer src="js/client.js"></script>
 
   <script>
     if ('serviceWorker' in navigator) {

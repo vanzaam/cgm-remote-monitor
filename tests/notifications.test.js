@@ -204,4 +204,54 @@ describe('notifications', function ( ) {
     done();
   });
 
+  it('re-ack updates snooze and re-emits clear with remainingMills', function (done) {
+    notifications.resetStateForTests();
+    var emitted = [];
+    ctx.bus = new Stream;
+    ctx.bus.on('notification', function onNotification (notify) {
+      emitted.push(notify);
+    });
+
+    notifications.ack(levels.WARN, 'Time Ago', 10000, true);
+    notifications.ack(levels.WARN, 'Time Ago', 20000, true);
+
+    emitted.length.should.equal(2);
+    emitted[1].clear.should.equal(true);
+    emitted[1].group.should.equal('Time Ago');
+    emitted[1].level.should.equal(levels.WARN);
+    emitted[1].remainingMills.should.equal(20000);
+    done();
+  });
+
+  it('supports cancel with explicit zero silence time', function (done) {
+    notifications.resetStateForTests();
+    var emitted = [];
+    ctx.bus = new Stream;
+    ctx.bus.on('notification', function onNotification (notify) {
+      emitted.push(notify);
+    });
+
+    notifications.ack(levels.WARN, 'Time Ago', 15000, true);
+    notifications.ack(levels.WARN, 'Time Ago', 0, true);
+
+    emitted.length.should.equal(2);
+    emitted[1].remainingMills.should.equal(0);
+    notifications.getActiveSnoozes().length.should.equal(0);
+    done();
+  });
+
+  it('returns active snoozes with remainingMills for reconnect sync', function (done) {
+    notifications.resetStateForTests();
+    notifications.ack(levels.WARN, 'Time Ago', 15000);
+
+    var active = notifications.getActiveSnoozes();
+    active.length.should.equal(1);
+    active[0].clear.should.equal(true);
+    active[0].group.should.equal('Time Ago');
+    active[0].level.should.equal(levels.WARN);
+    active[0].remainingMills.should.be.above(0);
+    active[0].remainingMills.should.be.belowOrEqual(15000);
+    done();
+  });
+
 });
