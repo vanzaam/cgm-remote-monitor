@@ -29,7 +29,7 @@
     "start": "node lib/server/server.js",
     "test": "env-cmd -f ./my.test.env mocha --timeout 5000 --require ./tests/hooks.js -exit ./tests/*.test.js",
     "test-single": "env-cmd -f ./my.test.env mocha --timeout 5000 --require ./tests/hooks.js --exit ./tests/$TEST.test.js",
-    "test-ci": "env-cmd -f ./tests/ci.test.env nyc --reporter=lcov --reporter=text-summary mocha --timeout 5000 --require ./tests/hooks.js --exit ./tests/*.test.js",
+    "test-ci": "env-cmd -f ./tests/ci.test.env mocha --timeout 5000 --require ./tests/hooks.js --exit ./tests/*.test.js",
     "env": "env",
     "postinstall": "node bin/patch-mongomock.js && webpack --mode production --config webpack/webpack.config.js && npm run-script post-generate-keys",
     "bundle": "webpack --mode production --config webpack/webpack.config.js && npm run-script post-generate-keys",
@@ -51,6 +51,31 @@
       "tests/*",
       "node_modules/*",
       "bin/*"
+    ]
+  },
+  "nyc": {
+    "cache": false,
+    "exclude": [
+      "node_modules/**",
+      "tests/**",
+      "static/**",
+      "bundle/**",
+      "bin/**",
+      "coverage/**",
+      "webpack/**",
+      "mythings/**",
+      "**/generator-function/**",
+      "**/is-generator-function/**",
+      "**/which-builtin-type/**",
+      "**/reflect.getprototypeof/**",
+      "**/typed-array-byte-offset/**",
+      "**/es-abstract/**",
+      "**/typedarray.prototype.slice/**",
+      "**/traverse/**"
+    ],
+    "reporter": [
+      "lcov",
+      "text-summary"
     ]
   },
   "config": {
@@ -116,8 +141,7 @@
     "moment-locales-webpack-plugin": "^1.2.0",
     "moment-timezone": "^0.5.48",
     "moment-timezone-data-webpack-plugin": "^1.5.0",
-    "mongo-url-parser": "^1.0.2",
-    "mongodb": "^6.12.0",
+    "mongodb": "^6.21.0",
     "mongomock": "^0.1.2",
     "nightscout-connect": "^0.0.12",
     "node-cache": "^4.2.1",

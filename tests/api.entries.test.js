@@ -19,6 +19,7 @@ describe('Entries REST api', function ( ) {
   before(function (done) {
     delete process.env.API_SECRET;
     process.env.API_SECRET = 'this is my long pass phrase';
+    process.env.MONGODB_URI = 'mongodb://127.0.0.1:27017/testdb';
     self.env = require('../lib/server/env')( );
     self.env.settings.authDefaultRoles = 'readable';
     self.wares = require('../lib/middleware/')(self.env);
@@ -26,6 +27,11 @@ describe('Entries REST api', function ( ) {
     self.app = require('express')( );
     self.app.enable('api');
     bootevent(self.env, language).boot(function booted (ctx) {
+      if (ctx.bootErrors && ctx.bootErrors.length > 0) {
+        console.error('Boot errors detected, skipping entries API setup:', ctx.bootErrors);
+        return done(new Error('Boot errors: ' + ctx.bootErrors.join(', ')));
+      }
+      
       self.app.use('/', entries(self.app, self.wares, ctx, self.env));
       self.archive = require('../lib/server/entries')(self.env, ctx);
       self.ctx = ctx;

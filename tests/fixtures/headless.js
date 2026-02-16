@@ -175,6 +175,14 @@ function headless (benv, binding) {
   }
 
   function teardown ( ) {
+    // Clear all intervals and timeouts to prevent timer leaks
+    // This prevents "window is not defined" errors when client timers
+    // fire after headless tests end and benv is torn down
+    var maxId = setTimeout(function(){}, 0);
+    for (var i = 1; i <= maxId; i++) {
+      clearTimeout(i);
+      clearInterval(i);
+    }
     benv.teardown();
   }
   root.setup = init;

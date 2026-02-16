@@ -40,9 +40,11 @@ describe('Notifications API', function ( ) {
 
     //start fresh to we don't pick up other notifications
     ctx.bus = new Stream;
+    var doneCalled = false;
     //if notification doesn't get called test will time out
     ctx.bus.on('notification', function callback (notify) {
-      if (notify.clear) {
+      if (notify.clear && !doneCalled) {
+        doneCalled = true;
         done();
       }
     });

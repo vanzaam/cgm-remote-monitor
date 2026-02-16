@@ -28,6 +28,15 @@ describe('Security of REST API3', function() {
     self.jwt = authResult.jwt;
   });
 
+  afterEach(() => {
+    // Clear all timers to prevent client timer leaks
+    const maxId = setTimeout(function(){}, 0);
+    for (let i = 1; i <= maxId; i++) {
+      clearTimeout(i);
+      clearInterval(i);
+    }
+  });
+
 
   after(() => {
     self.http.ctx.bus.teardown();
@@ -61,6 +70,13 @@ describe('Security of REST API3', function() {
       .get('/api/v3/test')
       .set('Authorization', `Bearer ${self.jwt.denied}`)
       .expect(403);
+
+    // Clear timers immediately after request to prevent leaks
+    const maxId = setTimeout(function(){}, 0);
+    for (let i = 1; i <= maxId; i++) {
+      clearTimeout(i);
+      clearInterval(i);
+    }
 
     res.body.status.should.equal(403);
     res.body.message.should.equal(apiConst.MSG.HTTP_403_MISSING_PERMISSION.replace('{0}', 'api:entries:read'));

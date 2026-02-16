@@ -32,16 +32,26 @@ describe('API_SECRET', function() {
   function setup_app (env, fn) {
     api = require('../lib/api/');
     require('../lib/server/bootevent')(env, language).boot(function booted (ctx) {
+      if (ctx.bootErrors && ctx.bootErrors.length > 0) {
+        console.error('Boot errors detected in setup_app:', ctx.bootErrors);
+        return fn(new Error('Boot errors: ' + ctx.bootErrors.join(', ')));
+      }
+      
       ctx.app = api(env, ctx);
       scope.app = ctx.app;
       scope.entries = ctx.entries;
-      fn(ctx);
+      fn(null, ctx);
     });
   }
 
   function setup_big_app (env, fn) {
     api = require('../lib/api/');
     require('../lib/server/bootevent')(env, language).boot(function booted (ctx) {
+      if (ctx.bootErrors && ctx.bootErrors.length > 0) {
+        console.error('Boot errors detected in setup_big_app:', ctx.bootErrors);
+        return fn(new Error('Boot errors: ' + ctx.bootErrors.join(', ')));
+      }
+      
       ctx.app = api(env, ctx);
       scope.app = ctx.app;
       scope.entries = ctx.entries;
@@ -51,7 +61,7 @@ describe('API_SECRET', function() {
       listener = server.listen(1337, 'localhost');
       websocket = require('../lib/server/websocket')(env, ctx, server);
 
-      fn(ctx);
+      fn(null, ctx);
     });
   }
 
@@ -60,11 +70,13 @@ describe('API_SECRET', function() {
 
     delete process.env.API_SECRET;
     process.env.API_SECRET = 'this is my long pass phrase';
+    process.env.MONGODB_URI = 'mongodb://127.0.0.1:27017/testdb';
     var env = require('../lib/server/env')();
 
     env.enclave.isApiKey(known).should.equal(true);
 
-    setup_app(env, function(ctx) {
+    setup_app(env, function(err, ctx) {
+      if (err) return done(err);
       ctx.app.enabled('api').should.equal(true);
       ping_status(ctx.app, again);
 
@@ -80,9 +92,11 @@ describe('API_SECRET', function() {
     var known = 'b723e97aa97846eb92d5264f084b2823f57c4aa1';
     delete process.env.API_SECRET;
     process.env.API_SECRET = 'this is my long pass phrase';
+    process.env.MONGODB_URI = 'mongodb://127.0.0.1:27017/testdb';
     var env = require('../lib/server/env')();
     env.enclave.isApiKey(known).should.equal(true);
-    setup_app(env, function(ctx) {
+    setup_app(env, function(err, ctx) {
+      if (err) return done(err);
       ctx.app.enabled('api').should.equal(true);
       ping_status(ctx.app, again);
 

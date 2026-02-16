@@ -15,7 +15,9 @@ describe('Alexa REST api', function ( ) {
   before(function (done) {
     delete process.env.API_SECRET;
     process.env.API_SECRET = 'this is my long pass phrase';
+    process.env.MONGODB_URI = 'mongodb://127.0.0.1:27017/testdb';
     var env = require('../lib/server/env')( );
+    console.log('Alexa test env.storageURI:', env.storageURI);
     env.settings.enable = ['alexa'];
     env.settings.authDefaultRoles = 'readable';
     env.api_secret = 'this is my long pass phrase';
@@ -24,6 +26,11 @@ describe('Alexa REST api', function ( ) {
     this.app.enable('api');
     var self = this;
     require('../lib/server/bootevent')(env, language).boot(function booted (ctx) {
+      if (ctx.bootErrors && ctx.bootErrors.length > 0) {
+        console.error('Boot errors detected, skipping API setup:', ctx.bootErrors);
+        return done(new Error('Boot errors: ' + ctx.bootErrors.join(', ')));
+      }
+      
       self.app.use('/api', bodyParser({
         limit: 1048576 * 50
       }), apiRoot(env, ctx));

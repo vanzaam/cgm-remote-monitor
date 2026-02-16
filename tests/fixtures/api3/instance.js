@@ -25,6 +25,9 @@ function configure () {
     process.env.API_SECRET = apiSecret;
 
     process.env.HOSTNAME = 'localhost';
+    // Set MongoDB connection for API3 tests
+    process.env.MONGODB_URI = 'mongodb://127.0.0.1:27017/testdb';
+    
     const env = require('../../../lib/server/env')();
 
     if (useHttps) {
@@ -113,6 +116,47 @@ function configure () {
           hasBooted = false
           ;
 
+        function waitForMongo (ctx) {
+          return new Promise(function (resolveWait, rejectWait) {
+            // Check if MongoDB is already connected
+            if (ctx.store && ctx.store.db && ctx.store.db.serverConfig && ctx.store.db.serverConfig.isConnected()) {
+              ctx.bootErrors = [];
+              return resolveWait();
+            }
+            
+            const timeout = setTimeout(function () {
+              rejectWait(new Error('mongo-recovered timeout'));
+            }, 10000); // Reduce timeout for faster feedback
+            
+            if (ctx.bus && ctx.bus.once) {
+              ctx.bus.once('mongo-recovered', function () {
+                clearTimeout(timeout);
+                ctx.bootErrors = [];
+                resolveWait();
+              });
+            } else {
+              clearTimeout(timeout);
+              rejectWait(new Error('mongo-recovered event bus unavailable'));
+            }
+          });
+        }
+
+        function ensureAuthorization (ctx) {
+          if (ctx.authorization) {
+            return Promise.resolve();
+          }
+          ctx.authorization = require('../../../lib/authorization')(instance.env, ctx);
+          ctx.authorization.storage.ensureIndexes();
+          return new Promise(function (resolveAuth, rejectAuth) {
+            ctx.authorization.storage.reload(function loaded (err) {
+              if (err) {
+                return rejectAuth(err);
+              }
+              resolveAuth();
+            });
+          });
+        }
+
         instance.env = self.prepareEnv({ apiSecret, useHttps, authDefaultRoles, enable });
 
         self.wares = require('../../../lib/middleware/')(instance.env);
@@ -121,40 +165,52 @@ function configure () {
 
         require('../../../lib/server/bootevent')(instance.env, language).boot(function booted (ctx) {
           instance.ctx = ctx;
-          instance.ctx.ddata = require('../../../lib/data/ddata')();
-          instance.ctx.apiApp = api(instance.env, ctx);
 
-          if (disableSecurity) {
-            instance.ctx.apiApp.set('API3_SECURITY_ENABLE', false);
-          }
+          console.log('API3 Instance bootErrors:', ctx.bootErrors ? ctx.bootErrors.length : 'none');
+          console.log('API3 Instance ctx.store:', !!ctx.store);
+          
+          const bootSequence = (ctx.bootErrors && ctx.bootErrors.length > 0)
+            ? waitForMongo(ctx).then(function () { return ensureAuthorization(ctx); })
+            : ensureAuthorization(ctx);
 
-          instance.app.use('/api/v3', instance.ctx.apiApp);
-          instance.app.use('/api/v2/authorization', instance.ctx.authorization.endpoints);
+          bootSequence.then(function () {
+            instance.ctx.ddata = require('../../../lib/data/ddata')();
+            instance.ctx.apiApp = api(instance.env, ctx);
 
-          const transport = useHttps ? https : http;
+            if (disableSecurity) {
+              instance.ctx.apiApp.set('API3_SECURITY_ENABLE', false);
+            }
 
-          instance.server = transport.createServer(instance.env.ssl || { }, instance.app).listen(0);
-          instance.env.PORT = instance.server.address().port;
+            instance.app.use('/api/v3', instance.ctx.apiApp);
+            instance.app.use('/api/v2/authorization', instance.ctx.authorization.endpoints);
 
-          instance.baseUrl = `${useHttps ? 'https' : 'http'}://${instance.env.HOSTNAME}:${instance.env.PORT}`;
+            const transport = useHttps ? https : http;
 
-          self.addSecuredOperations(instance);
-          instance.cacheMonitor = new CacheMonitor(instance).listen();
+            instance.server = transport.createServer(instance.env.ssl || { }, instance.app).listen(0);
+            instance.env.PORT = instance.server.address().port;
 
-          websocket(instance.env, instance.ctx, instance.server);
+            instance.baseUrl = `${useHttps ? 'https' : 'http'}://${instance.env.HOSTNAME}:${instance.env.PORT}`;
 
-          self.bindSocket(storageSocket, instance)
-            .then((socket) => {
-              instance.clientSocket = socket;
+            self.addSecuredOperations(instance);
+            instance.cacheMonitor = new CacheMonitor(instance).listen();
 
-              console.log(`Started ${useHttps ? 'SSL' : 'HTTP'} instance on ${instance.baseUrl}`);
-              hasBooted = true;
-              resolve(instance);
-            })
-            .catch((reason) => {
-              console.error(reason);
-              reject(reason);
-            });
+            websocket(instance.env, instance.ctx, instance.server);
+
+            self.bindSocket(storageSocket, instance)
+              .then((socket) => {
+                instance.clientSocket = socket;
+
+                console.log(`Started ${useHttps ? 'SSL' : 'HTTP'} instance on ${instance.baseUrl}`);
+                hasBooted = true;
+                resolve(instance);
+              })
+              .catch((reason) => {
+                console.error(reason);
+                reject(reason);
+              });
+          }).catch(function (err) {
+            reject(err);
+          });
         });
 
         setTimeout(function watchDog() {
