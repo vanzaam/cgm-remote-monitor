@@ -357,6 +357,24 @@ a, a:visited, a:link {
   background: rgba(255,82,82,0.5);
 }
 
+.snooze-forever-btn {
+  padding: 3px 6px !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.7;
+}
+
+.snooze-forever-btn:hover {
+  opacity: 1;
+}
+
+.snooze-bell-svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
 .snooze-subgroup {
   margin-bottom: 10px;
   border-radius: 6px;
