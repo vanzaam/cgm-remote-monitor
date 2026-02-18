@@ -16,12 +16,22 @@
       </div>
     <% } %>
     <%if (type === 'index') { %>
+        <a id="alarmSnoozeBtn" href="#" style="display:none;">30m</a>
         <div id="buttonbar" role="navigation" aria-label="Menu" >
             <a id="boluscalcDrawerToggle" class="tip" original-title="Bolus Wizard" aria-label="Bolus Wizard" href="#" style="display:none;"><i class="icon-calc"></i></a>
             <a id="treatmentDrawerToggle" class="tip" original-title="Care Portal" aria-label="Care Portal" href="#" style="display:none;"><i class="icon-plus"></i></a>
             <a id="lockedToggle" class="tip" original-title="Token needed for Care Portal" aria-label="Token needed for Care Portal" href="#" style="display:none;"><i class="icon-lock"></i></a>
             <a id="drawerToggle" class="tip" original-title="Settings" aria-label="Settings" href="#"><i class="icon-menu"></i></a>
             <a id="testAlarms" class="tip" original-title="Alarm Test / Smartphone Enable" aria-label="Alarm Test / Smartphone Enable" href="#"><i class="icon-volume"></i></a>
+            <a id="snoozeManagerBtn" class="tip snooze-manager-toolbar-btn" original-title="Snooze Manager" aria-label="Snooze Manager" href="#">
+              <svg id="snoozeIconNormal" class="snooze-svg-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+              </svg>
+              <svg id="snoozeIconSnoozed" class="snooze-svg-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="display:none;">
+                <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+                <line x1="2" y1="2" x2="22" y2="22" stroke="#ff5252" stroke-width="2.5" stroke-linecap="round"/>
+              </svg>
+            </a>
             <a id="editbutton" class="tip" original-title="Edit Mode" aria-label="Edit Mode" href="#" style="display:none;"><i class="icon-edit"></i></a>
             <a id="adminnotifies" class="tip" original-title="Admin ntofications" aria-label="Admin notifications" href="#" style="display:none;"><i class="plugicon-notifies" style='color: #c91515'></i></a>
         </div>

@@ -123,12 +123,30 @@
     <%- include('partials/toolbar') %>
 
     <div id="notification" role="region" aria-label="Notification">
-      <a href="#" aria-label="cancel"><span></span><i class="icon-cancel-circled"></i></a>
+      <span class="notification-content"></span>
+      <div class="notification-actions">
+        <a href="#" id="notificationSnooze" class="notification-snooze translate" aria-label="Snooze">Snooze</a>
+        <a href="#" aria-label="cancel"><i class="icon-cancel-circled"></i></a>
+      </div>
     </div>
     <div id="snoozeBar" style="display:none;">
-      <span id="snoozeBarText"></span>
-      <a href="#" id="snoozeBarCancel" class="snooze-action translate">Cancel</a>
+      <a href="#" id="snoozeBarText" class="snooze-bar-link"></a>
+      <a href="#" id="snoozeBarCancel" class="snooze-action translate">Cancel All</a>
       <a href="#" id="snoozeBarExtend" class="snooze-action">+30m</a>
+    </div>
+    <div id="snoozeManagerModal" class="snooze-modal" style="display:none;">
+      <div class="snooze-modal-content">
+        <div class="snooze-modal-header">
+          <span class="translate">Snooze Manager</span>
+          <a href="#" id="snoozeManagerClose" class="snooze-modal-close">&times;</a>
+        </div>
+        <div class="snooze-modal-body" id="snoozeManagerBody">
+        </div>
+        <div class="snooze-modal-footer">
+          <a href="#" id="snoozeAllBtn" class="snooze-btn translate">Snooze All 30m</a>
+          <a href="#" id="cancelAllSnoozesBtn" class="snooze-btn snooze-btn-cancel translate">Cancel All</a>
+        </div>
+      </div>
     </div>
     <div class="primary">
       <div class="bgStatus current">

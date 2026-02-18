@@ -331,9 +331,38 @@ h1, legend,
   margin-right: 0.25em;
 }
 #notification i {
-  float: right;
   opacity: 0.5;
   vertical-align: top;
+}
+
+.notification-content {
+  display: inline-block;
+  max-width: calc(100% - 120px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.notification-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  float: right;
+}
+
+.notification-snooze {
+  background: rgba(255,255,255,0.2) !important;
+  border-radius: 3px !important;
+  color: #fff !important;
+  font-size: 11px !important;
+  padding: 2px 6px !important;
+  height: auto !important;
+  text-decoration: none !important;
+  margin-right: 5px;
+}
+
+.notification-snooze:hover {
+  background: rgba(255,255,255,0.3) !important;
 }
 
 .experiments a {
