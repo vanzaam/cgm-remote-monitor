@@ -37,8 +37,10 @@ describe('simplealarms', function ( ) {
     var sbx = require('../lib/sandbox')().serverInit(env, ctx);
     bgnow.setProperties(sbx);
     simplealarms.checkNotifications(sbx);
-    var highest = ctx.notifications.findHighestAlarm();
+    var highest = ctx.notifications.findHighestAlarm('Glucose High');
+    should.exist(highest);
     highest.level.should.equal(levels.WARN);
+    highest.group.should.equal('Glucose High');
     highest.message.should.equal('BG Now: 181 +10 mg/dl');
     done();
   });
@@ -49,7 +51,10 @@ describe('simplealarms', function ( ) {
 
     var sbx = require('../lib/sandbox')().serverInit(env, ctx);
     simplealarms.checkNotifications(sbx);
-    ctx.notifications.findHighestAlarm().level.should.equal(levels.URGENT);
+    var highest = ctx.notifications.findHighestAlarm('Glucose Urgent High');
+    should.exist(highest);
+    highest.level.should.equal(levels.URGENT);
+    highest.group.should.equal('Glucose Urgent High');
 
     done();
   });
@@ -60,7 +65,10 @@ describe('simplealarms', function ( ) {
 
     var sbx = require('../lib/sandbox')().serverInit(env, ctx);
     simplealarms.checkNotifications(sbx);
-    ctx.notifications.findHighestAlarm().level.should.equal(levels.WARN);
+    var highest = ctx.notifications.findHighestAlarm('Glucose Low');
+    should.exist(highest);
+    highest.level.should.equal(levels.WARN);
+    highest.group.should.equal('Glucose Low');
 
     done();
   });
@@ -71,7 +79,10 @@ describe('simplealarms', function ( ) {
 
     var sbx = require('../lib/sandbox')().serverInit(env, ctx);
     simplealarms.checkNotifications(sbx);
-    ctx.notifications.findHighestAlarm().level.should.equal(levels.URGENT);
+    var highest = ctx.notifications.findHighestAlarm('Glucose Urgent Low');
+    should.exist(highest);
+    highest.level.should.equal(levels.URGENT);
+    highest.group.should.equal('Glucose Urgent Low');
 
     done();
   });
