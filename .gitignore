@@ -38,3 +38,6 @@ deploy/frp/frpc.log
 deploy/frp/frpc
 deploy/frp/frpc.toml
 deploy/frp/README.md
+
+# test results
+test-results.json
