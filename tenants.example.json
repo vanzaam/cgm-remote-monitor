@@ -1,0 +1,12 @@
+{
+  "tenants": [
+    {
+      "hostname": "patient1.example.com",
+      "mongoUri": "mongodb://rs1:27017,rs2:27017/patient1_ns?replicaSet=rs0"
+    },
+    {
+      "hostname": "patient2.example.com",
+      "mongoUri": "mongodb://rs1:27017,rs2:27017/patient2_ns?replicaSet=rs0"
+    }
+  ]
+}
