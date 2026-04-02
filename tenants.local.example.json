@@ -1,0 +1,30 @@
+{
+  "tenants": [
+    {
+      "hostname": "ns1.local",
+      "mongoUri": "mongodb://127.0.0.1:27017/ns1_nightscout",
+      "settings": {
+        "API_SECRET": "change_me_ns1_secret_min_12_chars_long",
+        "INSECURE_USE_HTTP": "true",
+        "ENABLE": "careportal basal rawbg iob cob pump openaps loop devicestatus treatmentnotify",
+        "DISPLAY_UNITS": "mg/dl",
+        "THEME": "colors",
+        "ALARM_TIMEAGO_URGENT": "60",
+        "ALARM_TIMEAGO_WARN": "30"
+      }
+    },
+    {
+      "hostname": "ns2.local",
+      "mongoUri": "mongodb://127.0.0.1:27017/ns2_nightscout",
+      "settings": {
+        "API_SECRET": "change_me_ns2_secret_min_12_chars_long",
+        "INSECURE_USE_HTTP": "true",
+        "ENABLE": "careportal basal rawbg iob cob pump openaps loop devicestatus treatmentnotify",
+        "DISPLAY_UNITS": "mg/dl",
+        "THEME": "colors",
+        "ALARM_TIMEAGO_URGENT": "60",
+        "ALARM_TIMEAGO_WARN": "30"
+      }
+    }
+  ]
+}

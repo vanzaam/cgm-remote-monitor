@@ -43,6 +43,7 @@
     "dev-bun-1338": "env PATH=\"$HOME/.bun/bin:$PATH\" env-cmd -f ./my.env env PORT=1338 bun run lib/server/server.js 0.0.0.0",
     "dev-test": "env-cmd -f ./my.devtest.env nodemon --inspect lib/server/server.js 0.0.0.0",
     "prod": "env-cmd -f ./my.prod.env node lib/server/server.js 0.0.0.0",
+    "multi-tenant": "TENANTS_CONFIG=./tenants.local.json node lib/server/server.js 0.0.0.0",
     "lint": "eslint lib"
   },
   "main": "lib/server/server.js",
