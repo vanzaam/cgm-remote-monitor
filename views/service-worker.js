@@ -158,6 +158,62 @@ self.addEventListener('fetch', (evt) => {
   }
 });
 
+// Web Push notification handler
+self.addEventListener('push', (event) => {
+  if (!event.data) return;
+
+  try {
+    var data = event.data.json();
+  } catch (e) {
+    var data = { title: 'Nightscout', message: event.data.text(), type: 'info' };
+  }
+
+  var title = data.title || 'Nightscout';
+  var options = {
+    body: data.message || '',
+    icon: '/images/android-chrome-192x192.png',
+    badge: '/images/favicon-96x96.png',
+    tag: data.group || 'nightscout-alarm',
+    renotify: true,
+    requireInteraction: data.level === 'urgent' || data.level === 'warn',
+    data: { url: self.registration.scope }
+  };
+
+  if (data.type === 'clear') {
+    // Close existing notifications for this group
+    event.waitUntil(
+      self.registration.getNotifications({ tag: data.group || 'nightscout-alarm' })
+        .then(function (notifications) {
+          notifications.forEach(function (n) { n.close(); });
+        })
+    );
+    return;
+  }
+
+  event.waitUntil(
+    self.registration.showNotification(title, options)
+  );
+});
+
+// Open Nightscout when notification is clicked
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  var url = event.notification.data && event.notification.data.url || '/';
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true })
+      .then(function (clientList) {
+        // Focus existing Nightscout tab if open
+        for (var i = 0; i < clientList.length; i++) {
+          if (clientList[i].url.includes(self.registration.scope) && 'focus' in clientList[i]) {
+            return clientList[i].focus();
+          }
+        }
+        // Otherwise open new tab
+        return clients.openWindow(url);
+      })
+  );
+});
+
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {

@@ -1,0 +1,48 @@
+# Nightscout on Fly.io
+# Deploy: fly launch → fly secrets set MONGODB_URI=... API_SECRET=... → fly deploy
+#
+# For disk buffer persistence across deploys:
+#   fly volumes create ns_data --size 1 --region ams
+#   Then uncomment the [mounts] section below.
+
+app = "my-nightscout"
+primary_region = "ams"
+
+[build]
+
+[env]
+  PORT = "1337"
+  NODE_ENV = "production"
+  NIGHTSCOUT_BUFFER_DIR = "/data/buffer"
+  INSECURE_USE_HTTP = "true"
+
+[http_service]
+  internal_port = 1337
+  force_https = true
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [http_service.concurrency]
+    type = "connections"
+    hard_limit = 100
+    soft_limit = 80
+
+[[vm]]
+  memory = "256mb"
+  cpu_kind = "shared"
+  cpus = 1
+
+# Uncomment for persistent disk buffer (survives deploys):
+# [mounts]
+#   source = "ns_data"
+#   destination = "/data"
+
+[checks]
+  [checks.health]
+    type = "http"
+    port = 1337
+    path = "/api/v1/status.json"
+    interval = "30s"
+    timeout = "10s"
+    method = "GET"

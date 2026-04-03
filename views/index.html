@@ -791,6 +791,7 @@
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js', { scope: '/' }).then(function(reg) {
           console.log('Service worker registered');
+          window._swRegistration = reg;
           reg.addEventListener('updatefound', () => {
             console.log('Service worker update detected');
             reg.update();
@@ -807,6 +808,99 @@
     } else {
       console.log('Browser does not support service workers.');
     };
+
+    // Web Push subscription helper
+    window.NightscoutPush = {
+      subscribe: function() {
+        if (!('PushManager' in window)) {
+          alert('Push notifications are not supported in this browser.');
+          return;
+        }
+        if (!window._swRegistration) {
+          alert('Service worker not ready. Please reload the page.');
+          return;
+        }
+        // Get VAPID public key from server
+        fetch('/api/v1/push/vapidkey')
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
+            if (!data.vapidPublicKey) {
+              alert('Web Push not configured on this server.');
+              return;
+            }
+            var key = data.vapidPublicKey;
+            var keyBytes = Uint8Array.from(atob(key.replace(/-/g,'+').replace(/_/g,'/')), function(c) { return c.charCodeAt(0); });
+            return window._swRegistration.pushManager.subscribe({
+              userVisibleOnly: true,
+              applicationServerKey: keyBytes
+            });
+          })
+          .then(function(subscription) {
+            if (!subscription) return;
+            // Send subscription to server
+            var token = (window.Nightscout && window.Nightscout.client && window.Nightscout.client.authorized) ?
+              window.Nightscout.client.authorized.token : '';
+            return fetch('/api/v1/push/subscribe?token=' + token, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(subscription.toJSON())
+            });
+          })
+          .then(function(r) {
+            if (r && r.ok) {
+              alert('Push notifications enabled! You will receive alerts even when this tab is closed.');
+              localStorage.setItem('pushSubscribed', 'true');
+            }
+          })
+          .catch(function(err) {
+            console.error('Push subscription failed:', err);
+            if (err.name === 'NotAllowedError') {
+              alert('Notification permission denied. Please allow notifications in your browser settings.');
+            }
+          });
+      },
+      isSubscribed: function() {
+        return localStorage.getItem('pushSubscribed') === 'true';
+      },
+      // Show/hide the push button based on browser support
+      initButton: function() {
+        var btn = document.getElementById('pushNotifyBtn');
+        var dot = document.getElementById('pushNotifyDot');
+        if (!btn) return;
+
+        // Only show if browser supports Push API
+        if (!('PushManager' in window) || !('serviceWorker' in navigator)) return;
+
+        btn.style.display = '';
+        btn.style.position = 'relative';
+
+        if (NightscoutPush.isSubscribed()) {
+          dot.style.display = 'block';
+          btn.setAttribute('original-title', 'Push Notifications Active');
+        }
+
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          if (NightscoutPush.isSubscribed()) {
+            // Already subscribed — inform user
+            if (confirm('Push notifications are active. Disable?')) {
+              localStorage.removeItem('pushSubscribed');
+              dot.style.display = 'none';
+              btn.setAttribute('original-title', 'Enable Push Notifications');
+            }
+          } else {
+            NightscoutPush.subscribe();
+          }
+        });
+      }
+    };
+
+    // Init push button when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', NightscoutPush.initButton);
+    } else {
+      NightscoutPush.initButton();
+    }
 
   </script>
 
