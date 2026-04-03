@@ -124,6 +124,7 @@
 
   <%- include('partials/authentication-status') %>
 
+  <script>window.NS_SOCKET_IO_PATH = <%- locals.socketIoNamespace ? JSON.stringify(locals.socketIoNamespace) : 'null' %>;</script>
   <script defer src="<%= locals.bundle %>/js/bundle.app.js"></script>
   <script defer src="/socket.io/socket.io.js"></script>
   <script defer src="/report/js/flotcandle.js"></script>
