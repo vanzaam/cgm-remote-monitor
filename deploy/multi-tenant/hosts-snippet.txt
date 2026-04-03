@@ -1,0 +1,2 @@
+# Add to /etc/hosts (sudo nano /etc/hosts) — one line:
+127.0.0.1   localhost   ns1.local ns2.local ns3.local ns4.local ns5.local ns6.local ns7.local ns8.local ns9.local ns10.local
