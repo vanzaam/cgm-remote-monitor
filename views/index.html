@@ -837,12 +837,18 @@
           })
           .then(function(subscription) {
             if (!subscription) return;
-            // Send subscription to server
+            // Send subscription to server with proper auth headers
+            var headers = { 'Content-Type': 'application/json' };
+            // Use api-secret hash from localStorage if available (same as client.headers())
+            var secret = localStorage.getItem('apisecrethash');
+            if (secret) {
+              headers['api-secret'] = secret;
+            }
             var token = (window.Nightscout && window.Nightscout.client && window.Nightscout.client.authorized) ?
               window.Nightscout.client.authorized.token : '';
-            return fetch('/api/v1/push/subscribe?token=' + token, {
+            return fetch('/api/v1/push/subscribe' + (token ? '?token=' + token : ''), {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: headers,
               body: JSON.stringify(subscription.toJSON())
             });
           })
