@@ -861,8 +861,46 @@
       },
       isSubscribed: function() {
         return localStorage.getItem('pushSubscribed') === 'true';
+      },
+      // Show/hide the push button based on browser support
+      initButton: function() {
+        var btn = document.getElementById('pushNotifyBtn');
+        var dot = document.getElementById('pushNotifyDot');
+        if (!btn) return;
+
+        // Only show if browser supports Push API
+        if (!('PushManager' in window) || !('serviceWorker' in navigator)) return;
+
+        btn.style.display = '';
+        btn.style.position = 'relative';
+
+        if (NightscoutPush.isSubscribed()) {
+          dot.style.display = 'block';
+          btn.setAttribute('original-title', 'Push Notifications Active');
+        }
+
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          if (NightscoutPush.isSubscribed()) {
+            // Already subscribed — inform user
+            if (confirm('Push notifications are active. Disable?')) {
+              localStorage.removeItem('pushSubscribed');
+              dot.style.display = 'none';
+              btn.setAttribute('original-title', 'Enable Push Notifications');
+            }
+          } else {
+            NightscoutPush.subscribe();
+          }
+        });
       }
     };
+
+    // Init push button when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', NightscoutPush.initButton);
+    } else {
+      NightscoutPush.initButton();
+    }
 
   </script>
 
