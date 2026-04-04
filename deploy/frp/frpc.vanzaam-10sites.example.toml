@@ -1,0 +1,27 @@
+# Example: one Nightscout on Mac :1337, many public hostnames (multi-tenant by Host header).
+# Copy beside frpc binary as frpc.toml and set serverAddr (VPS public IP).
+# Without all names in customDomains, frps will reject ns1…ns10 (no vhost).
+# Minimum — apex only: customDomains = ["vanzaam.ru"]
+
+serverAddr = "94.19.174.183"
+serverPort = 7000
+
+[[proxies]]
+name = "nightscout"
+type = "http"
+localIP = "127.0.0.1"
+localPort = 1337
+customDomains = [
+    "vanzaam.ru",
+    "www.vanzaam.ru",
+    "ns1.vanzaam.ru",
+    "ns2.vanzaam.ru",
+    "ns3.vanzaam.ru",
+    "ns4.vanzaam.ru",
+    "ns5.vanzaam.ru",
+    "ns6.vanzaam.ru",
+    "ns7.vanzaam.ru",
+    "ns8.vanzaam.ru",
+    "ns9.vanzaam.ru",
+    "ns10.vanzaam.ru",
+]

@@ -1,7 +1,7 @@
 {
   "tenants": [
     {
-      "hostname": "ns1.local",
+      "hostname": "ns1.vanzaam.ru",
       "mongoUri": "mongodb://127.0.0.1:27017/ns1_nightscout",
       "settings": {
         "API_SECRET": "change_me_ns1_secret_min_12_chars_long",
@@ -14,7 +14,7 @@
       }
     },
     {
-      "hostname": "ns2.local",
+      "hostname": "ns2.vanzaam.ru",
       "mongoUri": "mongodb://127.0.0.1:27017/ns2_nightscout",
       "settings": {
         "API_SECRET": "change_me_ns2_secret_min_12_chars_long",
@@ -27,7 +27,7 @@
       }
     },
     {
-      "hostname": "ns3.local",
+      "hostname": "ns3.vanzaam.ru",
       "mongoUri": "mongodb://127.0.0.1:27017/ns3_nightscout",
       "settings": {
         "API_SECRET": "change_me_ns3_secret_min_12_chars_long",
@@ -40,7 +40,7 @@
       }
     },
     {
-      "hostname": "ns4.local",
+      "hostname": "ns4.vanzaam.ru",
       "mongoUri": "mongodb://127.0.0.1:27017/ns4_nightscout",
       "settings": {
         "API_SECRET": "change_me_ns4_secret_min_12_chars_long",
@@ -53,7 +53,7 @@
       }
     },
     {
-      "hostname": "ns5.local",
+      "hostname": "ns5.vanzaam.ru",
       "mongoUri": "mongodb://127.0.0.1:27017/ns5_nightscout",
       "settings": {
         "API_SECRET": "change_me_ns5_secret_min_12_chars_long",
@@ -66,7 +66,7 @@
       }
     },
     {
-      "hostname": "ns6.local",
+      "hostname": "ns6.vanzaam.ru",
       "mongoUri": "mongodb://127.0.0.1:27017/ns6_nightscout",
       "settings": {
         "API_SECRET": "change_me_ns6_secret_min_12_chars_long",
@@ -79,7 +79,7 @@
       }
     },
     {
-      "hostname": "ns7.local",
+      "hostname": "ns7.vanzaam.ru",
       "mongoUri": "mongodb://127.0.0.1:27017/ns7_nightscout",
       "settings": {
         "API_SECRET": "change_me_ns7_secret_min_12_chars_long",
@@ -92,7 +92,7 @@
       }
     },
     {
-      "hostname": "ns8.local",
+      "hostname": "ns8.vanzaam.ru",
       "mongoUri": "mongodb://127.0.0.1:27017/ns8_nightscout",
       "settings": {
         "API_SECRET": "change_me_ns8_secret_min_12_chars_long",
@@ -105,7 +105,7 @@
       }
     },
     {
-      "hostname": "ns9.local",
+      "hostname": "ns9.vanzaam.ru",
       "mongoUri": "mongodb://127.0.0.1:27017/ns9_nightscout",
       "settings": {
         "API_SECRET": "change_me_ns9_secret_min_12_chars_long",
@@ -118,7 +118,7 @@
       }
     },
     {
-      "hostname": "ns10.local",
+      "hostname": "ns10.vanzaam.ru",
       "mongoUri": "mongodb://127.0.0.1:27017/ns10_nightscout",
       "settings": {
         "API_SECRET": "change_me_ns10_secret_min_12_chars_long",

@@ -44,6 +44,8 @@
     "dev-test": "env-cmd -f ./my.devtest.env nodemon --inspect lib/server/server.js 0.0.0.0",
     "prod": "env-cmd -f ./my.prod.env node lib/server/server.js 0.0.0.0",
     "multi-tenant": "TENANTS_CONFIG=./tenants.local.json node lib/server/server.js 0.0.0.0",
+    "tenants:gen": "node deploy/multi-tenant/generate-tenants-config.js",
+    "multi-tenant:gen": "TENANTS_CONFIG=./tenants.local.generated.json node lib/server/server.js 0.0.0.0",
     "lint": "eslint lib"
   },
   "main": "lib/server/server.js",

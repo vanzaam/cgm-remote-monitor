@@ -1,2 +1,6 @@
 # Add to /etc/hosts (sudo nano /etc/hosts) — one line:
-127.0.0.1   localhost   ns1.local ns2.local ns3.local ns4.local ns5.local ns6.local ns7.local ns8.local ns9.local ns10.local
+127.0.0.1   localhost   ns1.vanzaam.ru ns2.vanzaam.ru ns3.vanzaam.ru ns4.vanzaam.ru ns5.vanzaam.ru ns6.vanzaam.ru ns7.vanzaam.ru ns8.vanzaam.ru ns9.vanzaam.ru ns10.vanzaam.ru
+
+# 100+ tenants: generate config with `npm run tenants:gen -- 100` (see package.json).
+# For browser you need either a long hosts line or test via
+# curl -H "Host: ns1.vanzaam.ru" http://127.0.0.1:1337/ — no hosts entry required.
