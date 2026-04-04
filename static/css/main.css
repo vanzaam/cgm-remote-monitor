@@ -154,6 +154,32 @@ a, a:visited, a:link {
   color: #fff;
 }
 
+#pushNotifyBtn {
+  display: none;
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+  border-radius: 4px;
+  padding: 3px 12px;
+  font-size: 13px;
+  font-weight: bold;
+  text-decoration: none;
+  vertical-align: middle;
+  border: 1px solid rgba(255,255,255,0.4);
+  white-space: nowrap;
+  margin-left: 6px;
+}
+
+#pushNotifyBtn:hover {
+  background: rgba(255,255,255,0.35);
+  color: #fff;
+}
+
+#pushNotifyBtn.push-active {
+  background: rgba(76,175,80,0.35);
+  border-color: rgba(76,175,80,0.7);
+  color: #c8e6c9;
+}
+
 #toolbar.alarm-active {
   height: auto !important;
   min-height: 45px;

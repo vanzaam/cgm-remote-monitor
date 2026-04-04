@@ -856,6 +856,12 @@
             if (r && r.ok) {
               alert('Push notifications enabled! You will receive alerts even when this tab is closed.');
               localStorage.setItem('pushSubscribed', 'true');
+              var btn = document.getElementById('pushNotifyBtn');
+              if (btn) {
+                btn.textContent = 'Push \u2713';
+                btn.classList.add('push-active');
+                btn.setAttribute('original-title', 'Push Notifications Active');
+              }
             }
           })
           .catch(function(err) {
@@ -883,30 +889,63 @@
       // Show/hide the push button based on browser support
       initButton: function() {
         var btn = document.getElementById('pushNotifyBtn');
-        var dot = document.getElementById('pushNotifyDot');
         if (!btn) return;
 
         // Only show if browser supports Push API
         if (!('PushManager' in window) || !('serviceWorker' in navigator)) return;
 
-        btn.style.display = '';
-        btn.style.position = 'relative';
+        btn.style.display = 'inline-block';
+
+        function markActive() {
+          btn.textContent = 'Push \u2713';
+          btn.classList.add('push-active');
+          btn.setAttribute('original-title', 'Push Notifications Active');
+        }
+        function markInactive() {
+          btn.textContent = 'Push';
+          btn.classList.remove('push-active');
+          btn.setAttribute('original-title', 'Enable Push Notifications');
+        }
 
         // Verify real subscription state after SW is ready
+        // Checks both browser-side and server-side subscription
         function syncState() {
           NightscoutPush.checkRealSubscription(function(reallySubscribed) {
             if (NightscoutPush.isSubscribed() && !reallySubscribed) {
-              // localStorage says subscribed but browser says no — stale
-              console.warn('Push: subscription expired or invalidated, clearing state');
+              console.warn('Push: browser subscription gone, clearing state');
               localStorage.removeItem('pushSubscribed');
-              dot.style.display = 'none';
-              dot.style.background = '';
-              btn.setAttribute('original-title', 'Enable Push Notifications');
-            } else if (reallySubscribed) {
-              dot.style.display = 'block';
-              dot.style.background = '#4caf50';
-              btn.setAttribute('original-title', 'Push Notifications Active');
+              markInactive();
+              return;
             }
+            if (!reallySubscribed) return;
+
+            // Browser has subscription — verify server still has it too
+            window._swRegistration.pushManager.getSubscription().then(function(sub) {
+              if (!sub) return;
+              var headers = { 'Content-Type': 'application/json' };
+              var secret = localStorage.getItem('apisecrethash');
+              if (secret) headers['api-secret'] = secret;
+              fetch('/api/v1/push/verify', {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify({ endpoint: sub.endpoint })
+              })
+              .then(function(r) { return r.json(); })
+              .then(function(data) {
+                if (data && data.exists) {
+                  markActive();
+                } else {
+                  // Server removed our subscription (VAPID key changed, etc.)
+                  // Re-subscribe automatically
+                  console.warn('Push: server lost our subscription, re-subscribing...');
+                  NightscoutPush.subscribe();
+                }
+              })
+              .catch(function() {
+                // Can't reach server — keep current state
+                markActive();
+              });
+            });
           });
         }
 
@@ -914,8 +953,7 @@
         setTimeout(syncState, 3000);
 
         if (NightscoutPush.isSubscribed()) {
-          dot.style.display = 'block';
-          btn.setAttribute('original-title', 'Push Notifications Active');
+          markActive();
         }
 
         btn.addEventListener('click', function(e) {
@@ -938,8 +976,7 @@
                   }
                 });
                 localStorage.removeItem('pushSubscribed');
-                dot.style.display = 'none';
-                btn.setAttribute('original-title', 'Enable Push Notifications');
+                markInactive();
               }
             } else {
               // Not subscribed or subscription expired — subscribe fresh
