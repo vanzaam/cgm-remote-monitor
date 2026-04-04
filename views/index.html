@@ -971,29 +971,28 @@
         // Check after a short delay to let SW register
         setTimeout(syncState, 3000);
 
-        if (NightscoutPush.isSubscribed()) {
-          // Verify subscription is still valid (VAPID keys may have changed)
-          NightscoutPush.checkRealSubscription(function(hasReal) {
-            if (hasReal) {
-              markActive();
+        // Always check REAL subscription state (not localStorage which is unreliable on Android PWA)
+        NightscoutPush.checkRealSubscription(function(hasReal) {
+          if (hasReal) {
+            localStorage.setItem('pushSubscribed', 'true'); // sync localStorage
+            markActive();
+          } else if (NightscoutPush.isSubscribed()) {
+            // localStorage says subscribed but browser lost it
+            if (!sessionStorage.getItem('pushAutoResubDone')) {
+              sessionStorage.setItem('pushAutoResubDone', '1');
+              console.log('Push: subscription lost, auto-resubscribing (once)...');
+              localStorage.removeItem('pushSubscribed');
+              markInactive();
+              NightscoutPush.subscribe();
             } else {
-              // Subscription lost (VAPID key change, browser cleared, etc.)
-              // Only auto-resubscribe once per session to prevent infinite loop
-              var autoResubKey = 'pushAutoResub_' + Date.now().toString(36).substring(0,4);
-              if (!sessionStorage.getItem('pushAutoResubDone')) {
-                sessionStorage.setItem('pushAutoResubDone', '1');
-                console.log('Push: subscription was lost, auto-resubscribing (once)...');
-                localStorage.removeItem('pushSubscribed');
-                markInactive();
-                NightscoutPush.subscribe();
-              } else {
-                console.log('Push: subscription lost, auto-resubscribe already attempted this session');
-                localStorage.removeItem('pushSubscribed');
-                markInactive();
-              }
+              console.log('Push: subscription lost, auto-resubscribe already attempted this session');
+              localStorage.removeItem('pushSubscribed');
+              markInactive();
             }
-          });
-        }
+          } else {
+            markInactive();
+          }
+        });
 
         btn.addEventListener('click', function(e) {
           e.preventDefault();

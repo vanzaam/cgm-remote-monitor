@@ -160,12 +160,19 @@ self.addEventListener('fetch', (evt) => {
 
 // Web Push notification handler
 self.addEventListener('push', (event) => {
-  if (!event.data) return;
+  // Chrome Android REQUIRES showNotification on every push event
+  // Failing to show a notification will cause Chrome to show a generic
+  // "This site has been updated in the background" notification
 
+  var data;
   try {
-    var data = event.data.json();
+    data = event.data ? event.data.json() : {};
   } catch (e) {
-    var data = { title: 'Nightscout', message: event.data.text(), type: 'info' };
+    try {
+      data = { title: 'Nightscout', message: event.data ? event.data.text() : '', type: 'alarm' };
+    } catch (e2) {
+      data = { title: 'Nightscout', message: 'New alert', type: 'alarm' };
+    }
   }
 
   var title = data.title || 'Nightscout';
@@ -176,15 +183,24 @@ self.addEventListener('push', (event) => {
     tag: data.group || 'nightscout-alarm',
     renotify: true,
     requireInteraction: data.level === 'urgent' || data.level === 'warn',
-    data: { url: self.registration.scope }
+    vibrate: data.level === 'urgent' ? [200, 100, 200, 100, 200] : [200, 100, 200],
+    data: { url: self.registration.scope, type: data.type, level: data.level }
   };
 
   if (data.type === 'clear') {
-    // Close existing notifications for this group
+    // Close existing alarm notifications and show a brief "All Clear"
     event.waitUntil(
       self.registration.getNotifications({ tag: data.group || 'nightscout-alarm' })
         .then(function (notifications) {
           notifications.forEach(function (n) { n.close(); });
+          // Must still show a notification on Android, but make it auto-dismiss
+          return self.registration.showNotification('All Clear', {
+            body: data.message || 'Alarm cleared',
+            icon: '/images/android-chrome-192x192.png',
+            tag: 'nightscout-clear',
+            silent: true,
+            requireInteraction: false
+          });
         })
     );
     return;
