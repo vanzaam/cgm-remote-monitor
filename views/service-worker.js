@@ -175,6 +175,18 @@ self.addEventListener('push', (event) => {
     }
   }
 
+  // Ping-back: confirm to server that SW received the push
+  var pingPromise = fetch('/api/v1/push/received', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      type: data.type || 'unknown',
+      level: data.level || 'unknown',
+      receivedAt: new Date().toISOString(),
+      ua: self.navigator ? self.navigator.userAgent.substring(0, 60) : 'sw'
+    })
+  }).catch(function() { /* ignore ping failures */ });
+
   var title = data.title || 'Nightscout';
   var options = {
     body: data.message || '',
@@ -188,26 +200,30 @@ self.addEventListener('push', (event) => {
   };
 
   if (data.type === 'clear') {
-    // Close existing alarm notifications and show a brief "All Clear"
     event.waitUntil(
-      self.registration.getNotifications({ tag: data.group || 'nightscout-alarm' })
-        .then(function (notifications) {
-          notifications.forEach(function (n) { n.close(); });
-          // Must still show a notification on Android, but make it auto-dismiss
-          return self.registration.showNotification('All Clear', {
-            body: data.message || 'Alarm cleared',
-            icon: '/images/android-chrome-192x192.png',
-            tag: 'nightscout-clear',
-            silent: true,
-            requireInteraction: false
-          });
-        })
+      Promise.all([
+        pingPromise,
+        self.registration.getNotifications({ tag: data.group || 'nightscout-alarm' })
+          .then(function (notifications) {
+            notifications.forEach(function (n) { n.close(); });
+            return self.registration.showNotification('All Clear', {
+              body: data.message || 'Alarm cleared',
+              icon: '/images/android-chrome-192x192.png',
+              tag: 'nightscout-clear',
+              silent: true,
+              requireInteraction: false
+            });
+          })
+      ])
     );
     return;
   }
 
   event.waitUntil(
-    self.registration.showNotification(title, options)
+    Promise.all([
+      pingPromise,
+      self.registration.showNotification(title, options)
+    ])
   );
 });
 
