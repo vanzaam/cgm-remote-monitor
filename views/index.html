@@ -830,10 +830,35 @@
             }
             var key = data.vapidPublicKey;
             var keyBytes = Uint8Array.from(atob(key.replace(/-/g,'+').replace(/_/g,'/')), function(c) { return c.charCodeAt(0); });
-            return window._swRegistration.pushManager.subscribe({
-              userVisibleOnly: true,
-              applicationServerKey: keyBytes
-            });
+
+            // Check if there's an existing subscription with old keys — unsubscribe first
+            return window._swRegistration.pushManager.getSubscription()
+              .then(function(existingSub) {
+                if (existingSub) {
+                  // Compare the applicationServerKey
+                  var existingKey = existingSub.options && existingSub.options.applicationServerKey;
+                  var existingKeyStr = existingKey ? btoa(String.fromCharCode.apply(null, new Uint8Array(existingKey))) : '';
+                  var serverKeyStr = btoa(String.fromCharCode.apply(null, keyBytes));
+
+                  if (existingKeyStr !== serverKeyStr) {
+                    console.log('Push: VAPID key changed, unsubscribing old subscription...');
+                    return existingSub.unsubscribe().then(function() {
+                      return null; // Force new subscription
+                    });
+                  }
+                  // Same key — reuse existing subscription
+                  return existingSub;
+                }
+                return null;
+              })
+              .then(function(sub) {
+                if (sub) return sub; // Reuse existing valid subscription
+                // Create new subscription with current server VAPID key
+                return window._swRegistration.pushManager.subscribe({
+                  userVisibleOnly: true,
+                  applicationServerKey: keyBytes
+                });
+              });
           })
           .then(function(subscription) {
             if (!subscription) return;
@@ -953,7 +978,18 @@
         setTimeout(syncState, 3000);
 
         if (NightscoutPush.isSubscribed()) {
-          markActive();
+          // Verify subscription is still valid (VAPID keys may have changed)
+          NightscoutPush.checkRealSubscription(function(hasReal) {
+            if (hasReal) {
+              markActive();
+            } else {
+              // Subscription lost (VAPID key change, browser cleared, etc.)
+              console.log('Push: subscription was lost, auto-resubscribing...');
+              localStorage.removeItem('pushSubscribed');
+              markInactive();
+              NightscoutPush.subscribe();
+            }
+          });
         }
 
         btn.addEventListener('click', function(e) {
