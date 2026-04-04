@@ -835,25 +835,19 @@
             return window._swRegistration.pushManager.getSubscription()
               .then(function(existingSub) {
                 if (existingSub) {
-                  // Compare the applicationServerKey
-                  var existingKey = existingSub.options && existingSub.options.applicationServerKey;
-                  var existingKeyStr = existingKey ? btoa(String.fromCharCode.apply(null, new Uint8Array(existingKey))) : '';
-                  var serverKeyStr = btoa(String.fromCharCode.apply(null, keyBytes));
-
-                  if (existingKeyStr !== serverKeyStr) {
-                    console.log('Push: VAPID key changed, unsubscribing old subscription...');
-                    return existingSub.unsubscribe().then(function() {
-                      return null; // Force new subscription
-                    });
-                  }
-                  // Same key — reuse existing subscription
-                  return existingSub;
+                  console.log('Push: found existing subscription, unsubscribing before re-subscribe...');
+                  return existingSub.unsubscribe().then(function() {
+                    // Wait briefly for push service to process unsubscribe
+                    return new Promise(function(r) { setTimeout(r, 1000); });
+                  }).then(function() {
+                    return null; // Force new subscription
+                  });
                 }
                 return null;
               })
               .then(function(sub) {
-                if (sub) return sub; // Reuse existing valid subscription
-                // Create new subscription with current server VAPID key
+                // Always create fresh subscription with current server VAPID key
+                console.log('Push: subscribing with server VAPID key:', key.substring(0, 20) + '...');
                 return window._swRegistration.pushManager.subscribe({
                   userVisibleOnly: true,
                   applicationServerKey: keyBytes
@@ -984,10 +978,19 @@
               markActive();
             } else {
               // Subscription lost (VAPID key change, browser cleared, etc.)
-              console.log('Push: subscription was lost, auto-resubscribing...');
-              localStorage.removeItem('pushSubscribed');
-              markInactive();
-              NightscoutPush.subscribe();
+              // Only auto-resubscribe once per session to prevent infinite loop
+              var autoResubKey = 'pushAutoResub_' + Date.now().toString(36).substring(0,4);
+              if (!sessionStorage.getItem('pushAutoResubDone')) {
+                sessionStorage.setItem('pushAutoResubDone', '1');
+                console.log('Push: subscription was lost, auto-resubscribing (once)...');
+                localStorage.removeItem('pushSubscribed');
+                markInactive();
+                NightscoutPush.subscribe();
+              } else {
+                console.log('Push: subscription lost, auto-resubscribe already attempted this session');
+                localStorage.removeItem('pushSubscribed');
+                markInactive();
+              }
             }
           });
         }
