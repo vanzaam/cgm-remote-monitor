@@ -6,12 +6,10 @@
 	"display": "standalone",
 	"background_color": "#333333",
 	"theme_color": "#333333",
+	"orientation": "any",
+	"categories": ["health", "medical"],
+	"description": "CGM remote monitor for diabetes management",
 	"icons": [
-		{
-			"src": "/images/android-chrome-36x36.png",
-			"sizes": "36x36",
-			"type": "image/png"
-		},
 		{
 			"src": "/images/android-chrome-48x48.png",
 			"sizes": "48x48",
@@ -36,7 +34,19 @@
 			"src": "/images/android-chrome-192x192.png",
 			"sizes": "192x192",
 			"type": "image/png",
-			"purpose": "any maskable"
+			"purpose": "any"
+		},
+		{
+			"src": "/images/android-chrome-192x192.png",
+			"sizes": "192x192",
+			"type": "image/png",
+			"purpose": "maskable"
+		},
+		{
+			"src": "/images/android-chrome-512x512.png",
+			"sizes": "512x512",
+			"type": "image/png",
+			"purpose": "any"
 		}
 	]
 }
