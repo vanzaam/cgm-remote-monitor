@@ -28,9 +28,18 @@ Nightscout Server
 
 ## Setup (for site administrators)
 
-**No configuration needed.** VAPID keys are automatically generated on first
-boot and stored in the `nightscout_config` MongoDB collection (document
-`_id: "vapid_keys"`). They persist across restarts.
+VAPID keys are generated on first boot and stored in MongoDB (`nightscout_config`,
+document `_id: "vapid_keys"`). The server also mirrors them to a disk cache file
+`vapid_keys.json` under the Nightscout buffer directory (see `lib/server/diskbuffer.js`).
+
+**Stable keys across restarts:** set **`NIGHTSCOUT_BUFFER_DIR`** to a **persistent**
+path (e.g. Docker `/data/buffer`, or on a Mac something like `$HOME/nightscout-buffer`).
+If it is unset, the default is `path.join(os.tmpdir(), 'nightscout-buffer')` — on many
+systems `/tmp` is cleared on reboot, so the on-disk VAPID cache can disappear and keys
+may be regenerated when Mongo is empty or unreachable (clients must re-subscribe to push).
+
+Optional: **`VAPID_EMAIL`** (or **`NIGHTSCOUT_EMAIL`**) — contact email embedded in VAPID
+(subject); some push endpoints (e.g. Apple) reject placeholder domains.
 
 ## Usage (for patients / caregivers)
 
